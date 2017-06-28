@@ -20,8 +20,8 @@
 
                 <div class="post">
                     <h3>{{ $post->title }}</h3>
-                    <p style="  ">{{ substr( $post->body,0,300 )  }} {{ strlen($post->body) > 300 ? "...":"" }} </p>
-                    <a href="#" class="btn btn-primary">Read More</a>
+                    <p style="word-wrap: break-word;">{{ substr( $post->body,0,300 )  }} {{ strlen($post->body) > 300 ? "...":"" }} </p>
+                    <a href="{{url('blog',$post->slug)}}" class="btn btn-primary">Read More</a>
                 </div>
 
                 <hr>

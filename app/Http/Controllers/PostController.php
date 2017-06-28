@@ -3,14 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Post;
+use App\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Session;
-
+use Purifier;
+use Image;
+use Intervention\Image\ImageManager;
 use App\Http\Requests;
 
 class PostController extends Controller
 {
+
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+
+
     /**
      * Display a listing of the resource.
      *
@@ -39,8 +51,13 @@ class PostController extends Controller
     public function create()
     {
 
+        $categories=Category::pluck('name','id');
 
-        return view('posts.create');
+        //dd($categories);
+
+        //$categories=array( $categories );
+
+        return view('posts.create')->withCategories($categories);
     }
 
     /**
@@ -58,14 +75,39 @@ class PostController extends Controller
         $this->validate($request, array(
             'title' => 'required | max:255',
             'slug' => 'required | alpha_dash | min:5 | max:255 | unique:posts,slug',
+            'category_id' => 'required | integer',
             'body' => 'required'
-        ));
+            ));
 
 
         $post = new Post();
         $post['title'] = $request->title;
         $post['slug'] = $request->slug;
-        $post['body'] = $request->body;
+        $post['body'] = Purifier::clean($request->body);
+        $post['category_id']=$request->category_id;
+
+
+        if( $request->hasFile('image') )// check if request has file 
+        {
+
+            $image=$request->file('image');// get  temporary image location
+
+            $filename=time().".".$image->getClientOriginalExtension();// new image name
+
+            $location=public_path('images/'.$filename);//image save location 
+            // echo $location;
+            // return ;
+
+            //$manager = new ImageManager(array('driver' => 'gd'));
+
+            //dd($request);
+            $img=Image::make($image)->resize(800,400)->save($location);
+            $post->image = $filename;
+            //echo $img;
+            //return ;
+
+        }
+
         $post->save();
 
         Session::flash('success', 'Your blog post has been saved');//session flash message ekbar e show kore
@@ -93,7 +135,7 @@ class PostController extends Controller
         //$post = DB::table('Posts')->where('id', $id)->first();
 
         return view('posts.show')->withPost($post);//magic method
-        //
+        
     }
 
     /**
@@ -107,7 +149,19 @@ class PostController extends Controller
         //
         $post = Post::find($id);
 
-        return view('posts.edit')->withPost($post);
+        // dd($post);
+
+        // $categories=Category::where('id',$post['category_id'])->value('name');
+
+        // 
+
+        // $categories[$post->category_id]=$categories->name;
+
+        $categories=Category::pluck('name','id');
+
+        //dd($categories);
+
+        return view('posts.edit')->withPost($post)->withCategories($categories);
 
     }
 
@@ -126,13 +180,15 @@ class PostController extends Controller
         $this->validate($request, array(
             'title' => 'required | max:255',
             'slug' => ($request->slug != $post->slug) ? 'required | alpha_dash | min:5 | max:255 | unique:posts,slug' : '',
+            'category_id' => 'required | integer',
             'body' => 'required'
-        ));
+            ));
 
 
         $post->title = $request->input('title');
         $post->slug = $request->slug;
-        $post->body = $request->input('body');
+        $post->category_id=$request->category_id;
+        $post->body = Purifier::clean($request->input('body'));
         $post->save();
 
         Session::flash('success', 'Your Post has been Successfuly Updated');

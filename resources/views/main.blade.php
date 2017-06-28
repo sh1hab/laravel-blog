@@ -2,19 +2,19 @@
 
 @include('pertials._head')
 
-<body>
+<body class="">
 
-@include('pertials._nav')
+	@include('pertials._nav')
 
-<div class="container">
-    @include('pertials._messages')
+	<div class="container">
+		@include('pertials._messages')
 
-    @yield('content')
-</div>
+		@yield('content')
+	</div>
 
-@include('pertials._footer')
+	@include('pertials._footer')
 
-@include('pertials._script')
+	@include('pertials._script')
 
 </body>
 
