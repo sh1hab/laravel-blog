@@ -29,8 +29,9 @@
 					<td><i>{{ $category->name }}</i></td>
 					<td></td>
 				</tr>
+				@endforeach
 			</tbody>
-			@endforeach
+			
 		</table>
 		
 

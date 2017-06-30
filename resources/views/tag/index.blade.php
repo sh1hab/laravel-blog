@@ -6,7 +6,7 @@
 
 <div class="row">
 
-	<div class="col-md-7 col-md-offset-1">
+	<div class="col-md-8 col-md-offset-1">
 		<table class="table">
 			<thead>
 				<tr>
@@ -21,10 +21,7 @@
 					<th>{{$tag->id}}</th>
 					<td>{{$tag->name}}</td>
 					<td>
-						<tr>
-							<td>Edit</td>
-							<td>Delete</td>
-						</tr>
+						
 					</td>
 				</tr>
 				@endforeach
@@ -49,3 +46,4 @@
 </div>
 
 @endsection
+

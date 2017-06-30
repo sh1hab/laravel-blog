@@ -13,4 +13,4 @@
 
 {{ Html::style('css/styles.css') }}
 
-@yield('stylesheets')
+

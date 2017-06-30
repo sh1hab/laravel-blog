@@ -7,6 +7,13 @@ use App\Tag;
 
 class TagController extends Controller
 {
+
+	public function __construct()
+	{
+		$this->middleware('auth');
+
+	}
+
 	public function index()
 	{
 		$tags=new Tag;
@@ -27,6 +34,8 @@ class TagController extends Controller
 
 		$tags['name']=$request['name'];
 		$tags->save();
+
+		return redirect()->route('tag.index');
 
 	}
 

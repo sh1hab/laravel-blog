@@ -2,13 +2,6 @@
 
 @section('title','| '.$post->title)
 
-@section('stylesheets')
-
-
-
-
-@endsection
-
 @section('content')
 
 <div class="row">
@@ -16,6 +9,7 @@
 		<h1>{{$post->title}}</h1>
 		<p style="word-break: break-all">{!!$post->body!!}</p>
 		<hr>
+		<p><b>Posted By: </b>{{ $post->user->name }}</p>
 		<p><b>Posted in: </b>{{ $post->category->name }}</p>
 
 	</div>

@@ -26,7 +26,7 @@
 
     {{--form-model binding--}}
 
-    {!! Form::model($post,[ 'route'=>['posts.update',$post->id ],'method'=>'PUT' ] ) !!}
+    {!! Form::model($post,[ 'route'=>['posts.update',$post->id ],'method'=>'PUT' ,'files'=>true ] ) !!}
 
     <div class="col-md-8">
         {!! Form::label('title','Title:' ) !!}
@@ -37,6 +37,15 @@
 
         {!! Form::label('category_id','Category:',["class"=>"form-spacing-top"])!!}
         {!! Form::select('category_id',$categories,null,["class"=>"form-control"]) !!}
+
+        {!!Form::label('image','Upload Featured Image')!!}
+        {!!Form::file('image',['onchange'=>"loadFile(event)"])!!}
+
+        <img id="output" height="200px" width="200px" /><script>
+        var loadFile = function(event) {
+            var output = document.getElementById('output');
+            output.src = URL.createObjectURL(event.target.files[0]);};
+        </script>
 
 
         {!! Form::label('body','Body:',["class"=>"form-spacing-top"] ) !!}

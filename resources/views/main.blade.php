@@ -2,6 +2,8 @@
 
 @include('pertials._head')
 
+@yield('stylesheets')
+
 <body class="">
 
 	@include('pertials._nav')

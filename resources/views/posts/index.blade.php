@@ -18,7 +18,6 @@
 </div>
 
 
-
 <div class="row">
     <div class="col-md-12">
         <table class="table">
@@ -32,10 +31,10 @@
             <tbody>
                 @foreach($posts as $post)
                 <tr>
-                    <th>{{$post->id }}</th>
-                    <th>{{$post->title }}</th>
-                    <th>{{ substr(strip_tags($post->body),0,300)}} 
-                        {{ strlen(strip_tags($post->body))>=50 ? "...":"" }}
+                    <th>{{  $post->id }}</th>
+                    <th>{{  $post->title }}</th>
+                    <th>{{  substr(strip_tags($post->body),0,300)}} 
+                        {{  strlen(strip_tags($post->body))>=50 ? "...":"" }}
                     </th>
 
                     <th>{{date('M, j Y',strtotime($post->created_at) ) }}</th>

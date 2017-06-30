@@ -7,15 +7,17 @@
 <div class="row" >
     <div class="col-md-8">
 
-    <div class="">
-    <img src="{{url('/images/' . $post->image)}}" height="800" width="400" alt="blog image">
-    </div>
+
+        @if(!empty($post->image))
+        <img src="{{url('/images/' . $post->image)}}" height="800" width="400" alt="blog image">
+        @endif
         <h1>{{$post->title}}</h1>
         <p class="lead" style="overflow-wrap:break-word;">{!!$post->body!!}</p>
 
         <div id="backend-comments" style="margin-top: 50px">
             <h3>Comments:<small>{{$post->comments()->count()}} Total</small></h3>
 
+            @if($post->comments->count()>0)
             <table class="table">
                 <thead style="color: #bdbdbd">
                     <tr>`
@@ -43,6 +45,8 @@
                     @endforeach
                 </tbody>
             </table>
+            @endif
+            
         </div>
 
     </div>
@@ -54,7 +58,10 @@
 
                 <dd><a href="{{ route('blog.single', $post->slug) }}">{{ route('blog.single', $post->slug) }}</a></dd>
             </dl>
-
+            <dl class="dl-vertical">
+            <dt>Author:</dt>
+                <dd>{{$post->user->name}}</dd>
+            </dl>
             <dl class="dl-vertical">
                 <dt>Created At:</dt>
                 {{--strtotime = string to time php function--}}

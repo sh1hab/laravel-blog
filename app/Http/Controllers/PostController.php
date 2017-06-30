@@ -2,15 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Post;
-use App\Category;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Tag;
+use Image;
+use Storage;
 use Session;
 use Purifier;
-use Image;
-use Intervention\Image\ImageManager;
+use App\Post;
+use App\Category;
 use App\Http\Requests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
+use Auth;
+
 
 class PostController extends Controller
 {
@@ -20,7 +24,6 @@ class PostController extends Controller
     {
         $this->middleware('auth');
     }
-
 
 
     /**
@@ -38,7 +41,7 @@ class PostController extends Controller
 
         //$posts = Post::latest()->paginate(2);
 
-        $posts = Post::orderby('id', 'desc')->paginate(3);
+        $posts = Post::orderby('id', 'desc')->where('user_id','=',Auth::user()->id)->paginate(3);
 
         return view('posts.index')->withPosts($posts);
     }
@@ -53,11 +56,13 @@ class PostController extends Controller
 
         $categories=Category::pluck('name','id');
 
+        $tags=Tag::pluck('name','id');
+
         //dd($categories);
 
         //$categories=array( $categories );
 
-        return view('posts.create')->withCategories($categories);
+        return view('posts.create')->withCategories($categories)->withTags($tags);
     }
 
     /**
@@ -73,39 +78,33 @@ class PostController extends Controller
         //validated data
 
         $this->validate($request, array(
-            'title' => 'required | max:255',
-            'slug' => 'required | alpha_dash | min:5 | max:255 | unique:posts,slug',
-            'category_id' => 'required | integer',
-            'body' => 'required'
+            'title' =>          'required   | max:255',
+            'slug' =>           'required   | alpha_dash | min:5 | max:255 | unique:posts,slug',
+            'category_id' =>    'required   | integer',
+            'body' =>           'required',
+            'image'=>           'sometimes  | image'
             ));
 
 
         $post = new Post();
         $post['title'] = $request->title;
         $post['slug'] = $request->slug;
-        $post['body'] = Purifier::clean($request->body);
+        $post['body'] = Purifier::clean($request->body);// cleaning risky tags
         $post['category_id']=$request->category_id;
+
+        $post['user_id']=Auth::user()->id;//curent user id
 
 
         if( $request->hasFile('image') )// check if request has file 
         {
 
             $image=$request->file('image');// get  temporary image location
-
             $filename=time().".".$image->getClientOriginalExtension();// new image name
-
             $location=public_path('images/'.$filename);//image save location 
-            // echo $location;
-            // return ;
-
-            //$manager = new ImageManager(array('driver' => 'gd'));
-
-            //dd($request);
             $img=Image::make($image)->resize(800,400)->save($location);
-            $post->image = $filename;
-            //echo $img;
-            //return ;
 
+            $post->image = $filename;
+            
         }
 
         $post->save();
@@ -113,7 +112,6 @@ class PostController extends Controller
         Session::flash('success', 'Your blog post has been saved');//session flash message ekbar e show kore
 
         //$post['title']
-
         //inserted into database
         //Post::create($request->all());
         //redirecting to another page
@@ -130,12 +128,21 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        $post = Post::find($id);//primary key diye db te search
+        $post = Post::find($id);//primary key diye db e search
 
         //$post = DB::table('Posts')->where('id', $id)->first();
 
-        return view('posts.show')->withPost($post);//magic method
+
+        if( Auth::user()->id==$post->user_id )
+        {
+            return view('posts.show')->withPost($post);//magic method
+        }
         
+        
+        Session::flash('warning',"  Unauthorized Access!    ");
+        return redirect()->route('posts.index');
+        
+
     }
 
     /**
@@ -146,22 +153,24 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+
+
         $post = Post::find($id);
 
-        // dd($post);
+        if( Auth::user()->id==$post->user_id )
+        {
+            $categories=Category::pluck('name','id');
+
+            return view('posts.edit')->withPost($post)->withCategories($categories);
+        }
+
+        Session::flash('warning',"  Unauthorized Access!    ");
+        return redirect()->route('posts.index');
 
         // $categories=Category::where('id',$post['category_id'])->value('name');
-
-        // 
-
         // $categories[$post->category_id]=$categories->name;
 
-        $categories=Category::pluck('name','id');
-
-        //dd($categories);
-
-        return view('posts.edit')->withPost($post)->withCategories($categories);
+        
 
     }
 
@@ -178,10 +187,11 @@ class PostController extends Controller
         $post = Post::find($id);
 
         $this->validate($request, array(
-            'title' => 'required | max:255',
-            'slug' => ($request->slug != $post->slug) ? 'required | alpha_dash | min:5 | max:255 | unique:posts,slug' : '',
-            'category_id' => 'required | integer',
-            'body' => 'required'
+            'title'         => 'required | max:255',
+            'slug'          => ($request->slug != $post->slug) ? 'required | alpha_dash | min:5 | max:255 | unique:posts,slug' : '',
+            'category_id'   => 'required | integer',
+            'body'          => 'required',
+            'image'         =>'sometimes|image'
             ));
 
 
@@ -189,6 +199,21 @@ class PostController extends Controller
         $post->slug = $request->slug;
         $post->category_id=$request->category_id;
         $post->body = Purifier::clean($request->input('body'));
+
+        if($request->hasFile('image'))
+        {
+            $image=$request->file('image');
+            $newName="changed".time().".".$image->getClientOriginalExtension('');
+            $location=public_path('images/'.$newName);
+            Image::make($image)->resize(800,400)->save($location);
+            $old=$post->image;
+            $post->image=$newName;
+            Storage::delete($old);
+
+            
+        }
+
+
         $post->save();
 
         Session::flash('success', 'Your Post has been Successfuly Updated');
@@ -207,6 +232,14 @@ class PostController extends Controller
     public function destroy($id)
     {
         $post = Post::find($id);
+
+        @if( Auth::user()->id!=$post->user_id )
+        {
+            Session::flash('warning',"  Unauthorized Access!    ");
+            return redirect()->route('posts.index');
+        }
+
+        Storage::delete($post->image);
         $post->delete();
 
         Session::flash('success', 'Your Post Has Been Deleted');
