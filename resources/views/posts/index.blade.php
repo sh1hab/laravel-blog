@@ -31,16 +31,16 @@
             <tbody>
                 @foreach($posts as $post)
                 <tr>
-                    <th>{{  $post->id }}</th>
-                    <th>{{  $post->title }}</th>
-                    <th>{{  substr(strip_tags($post->body),0,300)}} 
+                    <td>{{  $post->id }}</td>
+                    <td>{{  $post->title }}</td>
+                    <td>{{  substr(strip_tags($post->body),0,300)}} 
                         {{  strlen(strip_tags($post->body))>=50 ? "...":"" }}
-                    </th>
+                    </td>
 
-                    <th>{{date('M, j Y',strtotime($post->created_at) ) }}</th>
-                    <th><a href="{{route('posts.show',$post->id)}}" class="btn btn-default btn-sm">View</a>
+                    <td>{{date('M, j Y',strtotime($post->created_at) ) }}</td>
+                    <td><a href="{{route('posts.show',$post->id)}}" class="btn btn-default btn-sm">View</a>
                         <a href="{{route('posts.edit',$post->id)}}" class="btn btn-default btn-sm">Edit</a>
-                    </th>
+                    </td>
                 </tr>
                 @endforeach
 

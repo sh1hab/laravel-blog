@@ -59,7 +59,7 @@
                 <dd><a href="{{ route('blog.single', $post->slug) }}">{{ route('blog.single', $post->slug) }}</a></dd>
             </dl>
             <dl class="dl-vertical">
-            <dt>Author:</dt>
+                <dt>Author:</dt>
                 <dd>{{$post->user->name}}</dd>
             </dl>
             <dl class="dl-vertical">

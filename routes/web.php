@@ -33,7 +33,6 @@ Route::resource('posts', 'PostController');
 
 //['only'=>'index','create']
 
-
 //Comment
 
 Route::post('comments/{post_id}','CommentController@store')->name('comment');
@@ -41,7 +40,6 @@ Route::get('comments/{id}/edit','CommentController@edit')->name('comment.edit');
 Route::put('comments/{id}','CommentController@update')->name('comment.update');
 Route::get('comments/{id}/delete','CommentController@delete')->name('comment.delete');
 Route::delete('comments/{id}/destroy','CommentController@destroy')->name('comment.destroy');
-
 
 //Category
 
@@ -51,7 +49,13 @@ Route::resource('category','CategoryController',['except'=>'create']);
 
 Route::resource('tag','TagController',['except'=>'create']);
 
+//users
+Route::get('/pp/index','PpController@create')->name('pp.create');
+Route::post('/pp/{id}/update','PpController@update')->name('pp.update');
+//Route::get('pp','PpController@index')->name('pp.index');
 //Authetication Middleware
+
+// Route::get('logout','LoginController@logout')->name('logout');
 
 Auth::routes();
 

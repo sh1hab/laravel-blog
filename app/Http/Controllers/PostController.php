@@ -233,7 +233,7 @@ class PostController extends Controller
     {
         $post = Post::find($id);
 
-        @if( Auth::user()->id!=$post->user_id )
+        if( Auth::user()->id!=$post->user_id )
         {
             Session::flash('warning',"  Unauthorized Access!    ");
             return redirect()->route('posts.index');
